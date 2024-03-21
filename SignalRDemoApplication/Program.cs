@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SignalRDemoApplication.Data;
+using SignalRDemoApplication.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+builder.Services.AddSignalR(); // add signalr service to the container 
 
 var app = builder.Build();
 
@@ -40,4 +42,7 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
 
+app.MapHub<UserHub>("/hubs/userCount");
+app.MapHub<UserHub>("/hubs/deathlyhallows");
+app.MapHub<ChatHub>("/chatHub");
 app.Run();

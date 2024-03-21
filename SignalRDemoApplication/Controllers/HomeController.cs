@@ -1,4 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using SignalRDemoApplication.Constants;
+using SignalRDemoApplication.Hubs;
 using SignalRDemoApplication.Models;
 using System.Diagnostics;
 
@@ -7,10 +10,13 @@ namespace SignalRDemoApplication.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IHubContext<DealthlyHallowHub> _deathlyHub;
 
-        public HomeController(ILogger<HomeController> logger)
+
+        public HomeController(ILogger<HomeController> logger, IHubContext<DealthlyHallowHub> deathlyHub)
         {
             _logger = logger;
+            _deathlyHub = deathlyHub;
         }
 
         public IActionResult Index()
@@ -18,7 +24,16 @@ namespace SignalRDemoApplication.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
+        public async Task<IActionResult> DeathlyHallows(string type)
+        {
+            if (SD.DeathlyHallowRace.ContainsKey(type))
+                SD.DeathlyHallowRace[type]++;
+            await _deathlyHub.Clients.All.SendAsync("updateDealthlyHallowCount",
+                SD.DeathlyHallowRace[SD.Cloak], SD.DeathlyHallowRace[SD.Stone], SD.DeathlyHallowRace[SD.Wand]);
+            return Accepted();
+        }
+
+        public IActionResult Chat()
         {
             return View();
         }
